@@ -40,6 +40,7 @@ func main() {
 		if !ok {
 			c.AbortWithError(404, errors.New("No todo for your my friend"))
 		}
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(http.StatusOK, gin.H{
 			"todos": todos,
 		})
