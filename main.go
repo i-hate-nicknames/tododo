@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -28,23 +29,19 @@ func initMockTodos() []*Todo {
 
 func MockTodoMiddleware(c *gin.Context) {
 	todos := initMockTodos()
-	c.Set("total_todos", len(todos))
+	c.Set("todos", todos)
 }
 
 func main() {
 	r := gin.Default()
 	r.Use(MockTodoMiddleware)
 	r.GET("/ping", func(c *gin.Context) {
-
+		todos, ok := c.Get("todos")
+		if !ok {
+			c.AbortWithError(404, errors.New("No todo for your my friend"))
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"message":     "pong",
-			"total_todos": c.GetInt("total_todos"),
-		})
-	})
-	r.GET("/pong", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message":     "ping",
-			"total_todos": c.GetInt("total_todos"),
+			"todos": todos,
 		})
 	})
 	r.Run()
